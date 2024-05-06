@@ -7,7 +7,7 @@ import { BsPersonFill } from "react-icons/bs";
 import { BiSolidShoppingBag } from "react-icons/bi";
 import { useState } from "react";
 import { HiBars3 } from "react-icons/hi2";
-
+import Link from "next/link";
 
 
 
@@ -40,7 +40,7 @@ const Navbar = () => {
           </div>
 
           <div className="text-sm text-right lg:flex hidden font-roboto text-[16px] ">
-            <a
+            <Link
               href="#account"
               className="block mt-4 lg:inline-block lg:mt-0  hover:text-gray-500 mr-4 transition-colors duration-300 ease-in-out"
             >
@@ -48,15 +48,15 @@ const Navbar = () => {
                 
                 <BsPersonFill  className="text-xl mr-1 h-[25px] w-[25px] " /> Account
               </span>
-            </a>
-            <a
+            </Link>
+            <Link
               href="#shopping"
               className="block mt-4 lg:inline-block lg:mt-0  hover:text-gray-500 transition-colors duration-300 ease-in-out"
             >
               <span className="flex items-center text-[16px]">
                 <BiSolidShoppingBag className="text-xl mr-1 h-[25px] w-[25px] " /> Shopping
               </span>
-            </a>
+            </Link>
           </div>
         </div>
         <div
@@ -70,24 +70,24 @@ const Navbar = () => {
             aria-labelledby="dropdownMenuIconButton"
           >
             <li>
-              <a
+              <Link
                 href="#account"
                 className="block mt-4 lg:inline-block ml-5 lg:mt-0  hover:text-gray-500 mr-4 transition-colors duration-300 ease-in-out"
               >
                 <span className="flex">
                   <BsPersonFill className="text-xl mr-1" /> Account
                 </span>
-              </a>
+              </Link>
             </li>
             <li>
-              <a
+              <Link
                 href="#shopping"
                 className="block mt-4 lg:inline-block ml-5 mb-3 lg:mt-0 primary hover:text-gray-500 transition-colors duration-300 ease-in-out"
               >
                 <span className="flex">
                   <BiSolidShoppingBag className="text-xl mr-1" /> Shopping
                 </span>
-              </a>
+              </Link>
             </li>
           </ul>
         </div>
@@ -95,47 +95,47 @@ const Navbar = () => {
       <hr className="border-t-2 border-gray-200" />
       <nav className="flex justify-center  font-sans p-6">
         <div className="flex justify-between w-full  mx-auto">
-          <a
+          <Link
             href="#shopping"
             className="hover: transition-colors lg:block hidden duration-300 ease-in-out"
           >
             Jewelry & Accessories
-          </a>
-          <a
+          </Link>
+          <Link
             href="#shopping"
             className="hover: transition-colors lg:block hidden duration-300 ease-in-out"
           >
             Clothing & Shoes
-          </a>
-          <a
+          </Link>
+          <Link
             href="#shopping"
             className="hover: transition-colors lg:block hidden duration-300 ease-in-out"
           >
             Home & Living
-          </a>
-          <a
+          </Link>
+          <Link
             href="#shopping"
             className="hover: transition-colors lg:block hidden duration-300 ease-in-out"
           >
             Wedding & Party
-          </a>
-          <a
+          </Link>
+          <Link
             href="#shopping"
             className="hover: transition-colors lg:block hidden duration-300 ease-in-out"
           >
             Toys & Entertainment
-          </a>
-          <a
+          </Link>
+          <Link
             href="#shopping"
             className="hover: transition-colors lg:block hidden duration-300 ease-in-out"
           >
             Art & Collectibles
-          </a>
+          </Link>
          
         </div>
        
       </nav>
-    </div>
+    </div> 
   );
 };
 
