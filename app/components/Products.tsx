@@ -1,3 +1,4 @@
+'use client';
 import React from "react";
 import jeans from "../../public/images/joggers.png";
 import glasses from "../../public/images/glasses.png";
@@ -28,6 +29,7 @@ const Products = () => {
 
   if (loading) return <p>Loading...</p>;
   if (error) return <p>Error : {error.message}</p>;
+  console.log('string', data );
 
   return (
     <>
@@ -39,18 +41,18 @@ const Products = () => {
           <div>
             <nav className="flex items-center flex-wrap justify-between  py-7">
               <div className="flex">
-                <ul className="flex  text-lg-[16px]">
+                <ul className="flex flex-wrap  text-lg-[16px]">
                   <Link
                     href="#tshirt"
                     className="text-black  hover:primary transition-colors duration-300 mr-4 ease-in-out"
                   >
-                    All Products
+                    All Products 
                   </Link>
                   {data.tags.nodes.map((item:any) => (
                     <li className="mr-5">
                       <Link
                         key={item.slug}
-                        href="#tshirt"
+                        href={{query:{tag:item.slug}}}
                         className="text-black  hover:primary transition-colors duration-300 ease-in-out"
                       >
                         {item.displayTitle}
