@@ -1,5 +1,6 @@
 'use client';
 import React from "react";
+
 import jeans from "../../public/images/joggers.png";
 import glasses from "../../public/images/glasses.png";
 import bag from "../../public/images/bag.png";
@@ -12,12 +13,15 @@ import { FaFilter } from "react-icons/fa6";
 import Image from "next/image";
 import Link from "next/link";
 import { useQuery, gql } from "@apollo/client";
+import { useSearchParams } from 'next/navigation'
+
 
 const Products = () => {
   const tabItems = gql`
     query {
       tags(shopId: "cmVhY3Rpb24vc2hvcDpGN2ZrM3plR3o4anpXaWZzQQ==") {
         nodes {
+          _id
           name
           displayTitle
           slug
@@ -25,11 +29,16 @@ const Products = () => {
       }
     }
   `;
+
   const { loading, error, data } = useQuery(tabItems);
+  console.log('string',data)
+  const searchParams = useSearchParams();
+  const search = searchParams.get('tag');
 
   if (loading) return <p>Loading...</p>;
   if (error) return <p>Error : {error.message}</p>;
-  console.log('string', data );
+
+
 
   return (
     <>
@@ -43,31 +52,39 @@ const Products = () => {
               <div className="flex">
                 <ul className="flex flex-wrap  text-lg-[16px]">
                   <Link
-                    href="#tshirt"
-                    className="text-black  hover:primary transition-colors duration-300 mr-4 ease-in-out"
-                  >
-                    All Products 
+                  scroll = {false}
+                    href="/"
+                    className={`text-black transition-colors mr-5  duration-300 ease-in-out ${!search ? "font-extrabold "  : ""}` }
+                    >
+                    
+                    All Products
                   </Link>
-                  {data.tags.nodes.map((item:any) => (
-                    <li className="mr-5">
-                      <Link
-                        key={item.slug}
-                        href={{query:{tag:item.slug}}}
-                        className="text-black  hover:primary transition-colors duration-300 ease-in-out"
-                      >
-                        {item.displayTitle}
-                      </Link>
-                    </li>
-                  ))}
+                  {data.tags.nodes.map((items: any) => {
+                    // const isActive = search === items.name;
+                    const isActive = search === items.slug;
+                    return (
+                      <li className="mr-5">
+                        <Link
+                          key={items.name}
+                          scroll={false}
+                          // href={{query:{tag:items.name}}}
+                          href={{ query: { tag: items.slug } }}
+                          className={`${isActive ? "font-extrabold text-black" : ""} text-black     transition-colors duration-300 ease-in-out`}
+                        >
+                          {items.displayTitle}
+                        </Link>
+                      </li>
+                    )
+                  })}
                 </ul>
               </div>
-              <button  className="flex bg-black text-white  items-center py-[5px] px-[15px]">
+              <button className="flex bg-black text-white  items-center py-[5px] px-[15px]">
                 <FaFilter className="mt-1 me-4" /> Filter
               </ button>
             </nav>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
               <div className="relative flex flex-col overflow-hidden bg-white hover:shadow-md transition">
-                <Link className="relative flex overflow-hidden " href="#">
+                <Link className="relative flex overflow-hidden " href="">
                   <Image
                     className="object-cover m-auto w-[348px]"
                     src={jeans}
@@ -75,7 +92,7 @@ const Products = () => {
                   />
                 </Link>
                 <div className="mt-4 px-3 pb-5">
-                  <Link href="#">
+                  <Link href="">
                     <h5 className="text-sm tracking-tight ">
                       Adicolor Classics Joggers
                     </h5>
@@ -89,7 +106,7 @@ const Products = () => {
                 </div>
               </div>
               <div className="relative flex flex-col overflow-hidden bg-white hover:shadow-md transition">
-                <Link className="relative flex overflow-hidden " href="#">
+                <Link className="relative flex overflow-hidden " href="">
                   <Image
                     className="object-cover  m-auto w-[348px]"
                     src={bag}
@@ -97,7 +114,7 @@ const Products = () => {
                   />
                 </Link>
                 <div className="mt-4 px-3 pb-5">
-                  <Link href="#">
+                  <Link href="">
                     <h5 className="text-sm tracking-tight ">
                       Nike Sportswear Futura Luxe
                     </h5>
@@ -111,7 +128,7 @@ const Products = () => {
                 </div>
               </div>
               <div className="relative flex flex-col overflow-hidden bg-white hover:shadow-md transition">
-                <Link className="relative flex overflow-hidden " href="#">
+                <Link className="relative flex overflow-hidden " href="">
                   <Image
                     className="object-cover  m-auto w-[348px]"
                     src={scarf}
@@ -119,7 +136,7 @@ const Products = () => {
                   />
                 </Link>
                 <div className="mt-4 px-3 pb-5">
-                  <Link href="#">
+                  <Link href="">
                     <h5 className="text-sm tracking-tight ">
                       Geometric print Scarf
                     </h5>
@@ -133,7 +150,7 @@ const Products = () => {
                 </div>
               </div>
               <div className="relative flex flex-col overflow-hidden bg-white hover:shadow-md transition">
-                <Link className="relative flex overflow-hidden " href="#">
+                <Link className="relative flex overflow-hidden " href="">
                   <Image
                     className="object-cover  m-auto w-[348px]"
                     src={hoodie}
@@ -141,7 +158,7 @@ const Products = () => {
                   />
                 </Link>
                 <div className="mt-4 px-3 pb-5">
-                  <Link href="#">
+                  <Link href="">
                     <h5 className="text-sm tracking-tight ">
                       Yellow Reserved Hoodie
                     </h5>
@@ -186,7 +203,7 @@ const Products = () => {
                 </div>
               </div>
               <div className="relative flex flex-col overflow-hidden bg-white hover:shadow-md transition">
-                <Link className="relative flex overflow-hidden " href="#">
+                <Link className="relative flex overflow-hidden " href="">
                   <Image
                     className="object-cover  m-auto w-[348px]"
                     src={shoes}
@@ -194,7 +211,7 @@ const Products = () => {
                   />
                 </Link>
                 <div className="mt-4 px-3 pb-5">
-                  <Link href="#">
+                  <Link href="">
                     <h5 className="text-sm tracking-tight ">
                       Nike Air Zoom Pegasus
                     </h5>
@@ -215,7 +232,7 @@ const Products = () => {
                 </div>
               </div>
               <div className="relative flex flex-col overflow-hidden bg-white hover:shadow-md transition">
-                <Link className="relative flex overflow-hidden " href="#">
+                <Link className="relative flex overflow-hidden " href="">
                   <Image
                     className="object-cover  m-auto w-[348px]"
                     src={jacket}
@@ -223,7 +240,7 @@ const Products = () => {
                   />
                 </Link>
                 <div className="mt-4 px-3 pb-5">
-                  <Link href="#">
+                  <Link href="">
                     <h5 className="text-sm tracking-tight ">
                       Nike Repel Miler
                     </h5>
@@ -237,7 +254,7 @@ const Products = () => {
                 </div>
               </div>
               <div className="relative flex flex-col overflow-hidden bg-white hover:shadow-md transition">
-                <Link className="relative flex overflow-hidden " href="#">
+                <Link className="relative flex overflow-hidden " href="">
                   <Image
                     className="object-cover  m-auto w-[348px]"
                     src={glasses}
@@ -245,7 +262,7 @@ const Products = () => {
                   />
                 </Link>
                 <div className="mt-4 px-3 pb-5">
-                  <Link href="#">
+                  <Link href="">
                     <h5 className="text-sm tracking-tight ">
                       Nike Sportswear Futura Luxe
                     </h5>

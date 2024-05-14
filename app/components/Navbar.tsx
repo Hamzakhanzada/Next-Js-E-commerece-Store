@@ -9,8 +9,6 @@ import { useState } from "react";
 import { HiBars3 } from "react-icons/hi2";
 import Link from "next/link";
 
-
-
 const Navbar = () => {
   const [isTopMenuOpen, setIsTopMenuOpen] = useState(false);
 
@@ -25,20 +23,16 @@ const Navbar = () => {
           <div className="flex items-center flex-shrink-0 text-white lg:mx-auto">
             <Image src={logoImg} alt="Logo" />
           </div>
-
           <div className="ml-auto lg:hidden">
             <button
               id="dropdownMenuIconButton"
-              className="inline-flex items-center p-2 text-sm font-medium text-center rounded-lg hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-gray-50"
+               className="inline-flex items-center p-2 text-sm font-medium text-center rounded-lg hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-gray-50"
               type="button"
               onClick={() => setIsTopMenuOpen(!isTopMenuOpen)}
             >
-            
               <HiBars3 className="text-xl"/>
-              
             </button>
           </div>
-
           <div className="text-sm text-right lg:flex hidden font-roboto text-[16px] ">
             <Link
               href="#account"
@@ -54,7 +48,7 @@ const Navbar = () => {
               className="block mt-4 lg:inline-block lg:mt-0  hover:text-gray-500 transition-colors duration-300 ease-in-out"
             >
               <span className="flex items-center text-[16px]">
-                <BiSolidShoppingBag className="text-xl mr-1 h-[25px] w-[25px] " /> Shopping
+                 <BiSolidShoppingBag className="text-xl mr-1 h-[25px] w-[25px] " /> Shopping
               </span>
             </Link>
           </div>
@@ -131,9 +125,7 @@ const Navbar = () => {
           >
             Art & Collectibles
           </Link>
-         
         </div>
-       
       </nav>
     </div> 
   );
