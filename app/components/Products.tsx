@@ -4,6 +4,10 @@ import { useQuery, gql } from "@apollo/client";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 // import SkeletonLoader from "./SkeletonLoader";
+import Skeleton from 'react-loading-skeleton'
+import 'react-loading-skeleton/dist/skeleton.css'
+
+
 import AllProducts from "./Allproducts";
 
 import food from "../../public/images/fast-food.jpg";
@@ -71,7 +75,8 @@ const Products = () => {
   if (loading)
     return (
       <div>
-        {/* <SkeletonLoader /> */}
+        <Skeleton className="h-[90px]" count={5} />
+
       </div>
     );
   if (error)
