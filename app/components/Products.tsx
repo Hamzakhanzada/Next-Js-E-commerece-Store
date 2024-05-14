@@ -1,286 +1,184 @@
-'use client';
-import React from "react";
-
-import jeans from "../../public/images/joggers.png";
-import glasses from "../../public/images/glasses.png";
-import bag from "../../public/images/bag.png";
-import scarf from "../../public/images/print-scarf.png";
-import hoodie from "../../public/images/yellow-hoodie.png";
-import greenshirt from "../../public/images/green-dress.png";
-import shoes from "../../public/images/nike-sneakers.png";
-import jacket from "../../public/images/jacket.png";
-import { FaFilter } from "react-icons/fa6";
-import Image from "next/image";
-import Link from "next/link";
+"use client";
+import React, { useState } from "react";
 import { useQuery, gql } from "@apollo/client";
-import { useSearchParams } from 'next/navigation'
+import Link from "next/link";
+import { useSearchParams } from "next/navigation";
+// import SkeletonLoader from "./SkeletonLoader";
+import AllProducts from "./Allproducts";
 
+import food from "../../public/images/fast-food.jpg";
+import Image from "next/image";
 
-const Products = () => {
-  const tabItems = gql`
-    query {
-      tags(shopId: "cmVhY3Rpb24vc2hvcDpGN2ZrM3plR3o4anpXaWZzQQ==") {
-        nodes {
-          _id
-          name
-          displayTitle
-          slug
+import { MdFilterAlt } from "react-icons/md";
+
+const GET_DATA = gql`
+  query ($tagIds: [ID!]) {
+    tags(shopId: "cmVhY3Rpb24vc2hvcDpGN2ZrM3plR3o4anpXaWZzQQ==") {
+      nodes {
+        _id
+        name
+        displayTitle
+        slug
+      }
+    }
+    catalogItems(
+      shopIds: ["cmVhY3Rpb24vc2hvcDpGN2ZrM3plR3o4anpXaWZzQQ=="]
+      tagIds: $tagIds
+    ) {
+      edges {
+        node {
+          ... on CatalogItemProduct {
+            product {
+              title
+              description
+              pricing {
+                displayPrice
+              }
+              _id
+              variants {
+                _id
+                title
+                media {
+                  URLs {
+                    small
+                  }
+                }
+              }
+            }
+          }
         }
       }
     }
-  `;
+  }
+`;
 
-  const { loading, error, data } = useQuery(tabItems);
-  console.log('string',data)
-  const searchParams = useSearchParams();
-  const search = searchParams.get('tag');
+const Products = () => {
+  const [tagId, setTagId] = useState("");
+  const { loading, error, data } = useQuery(GET_DATA, {
+    variables: {
+      tagIds: tagId ? [tagId] : null,
+    },
+  });
+  const [showAllProducts, setShowAllProducts] = useState(false);
+  const queryParameters = useSearchParams();
+  const search = queryParameters.get("tag");
 
-  if (loading) return <p>Loading...</p>;
-  if (error) return <p>Error : {error.message}</p>;
+  const handleAllProductsClick = () => {
+    setTagId("");
+    setShowAllProducts(false);
+  };
 
+  if (loading)
+    return (
+      <div>
+        {/* <SkeletonLoader /> */}
+      </div>
+    );
+  if (error)
+    return (
+      <p className="container mx-auto text-red-600">Error : {error.message}</p>
+    );
 
+  console.log("catalog items", data.catalogItems);
 
   return (
-    <>
-      <div className="container mx-auto">
-        <div className="products-section font-sans p-6">
-          <h2 className="text-center mt-[140px]">
-            Or subscribe to the newsletter
-          </h2>
-          <div>
-            <nav className="flex items-center flex-wrap justify-between  py-7">
-              <div className="flex">
-                <ul className="flex flex-wrap  text-lg-[16px]">
-                  <Link
-                  scroll = {false}
-                    href="/"
-                    className={`text-black transition-colors mr-5  duration-300 ease-in-out ${!search ? "font-extrabold "  : ""}` }
+    <div className="container mx-auto font-open-sans">
+      <div className="product-section p-6">
+        <h2 className="text-center">Or subscribe to the newsletter</h2>
+        <div>
+          <nav className="flex items-center justify-between bg-white py-7">
+            <ul className="hidden lg:flex">
+              <li className="mr-5">
+                <Link
+                  href="/"
+                  className={`${
+                    !search ? " text-black font-extrabold " : ""
+                  } text-black hover:text-primary transition-colors duration-300 ease-in-out`}
+                  onClick={handleAllProductsClick}
+                  scroll={false}
+                >
+                  All Products
+                </Link>
+              </li>
+              {data.tags.nodes.map((menuItems: any) => {
+                const isActive = search === menuItems.slug;
+                return (
+                  <li key={menuItems.id} className="mr-5">
+                    <Link
+                      href={{
+                        query: { tag: menuItems.slug },
+                      }}
+                      className={`${
+                        isActive ? " text-black font-extrabold" : ""
+                      } text-black  transition-colors duration-300 ease-in-out`}
+                      onClick={() => {
+                        setTagId(menuItems._id);
+                      }}
+                      scroll={false}
                     >
-                    
-                    All Products
-                  </Link>
-                  {data.tags.nodes.map((items: any) => {
-                    // const isActive = search === items.name;
-                    const isActive = search === items.slug;
-                    return (
-                      <li className="mr-5">
-                        <Link
-                          key={items.name}
-                          scroll={false}
-                          // href={{query:{tag:items.name}}}
-                          href={{ query: { tag: items.slug } }}
-                          className={`${isActive ? "font-extrabold text-black" : ""} text-black     transition-colors duration-300 ease-in-out`}
-                        >
-                          {items.displayTitle}
-                        </Link>
-                      </li>
-                    )
-                  })}
-                </ul>
-              </div>
-              <button className="flex bg-black text-white  items-center py-[5px] px-[15px]">
-                <FaFilter className="mt-1 me-4" /> Filter
-              </ button>
-            </nav>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-              <div className="relative flex flex-col overflow-hidden bg-white hover:shadow-md transition">
-                <Link className="relative flex overflow-hidden " href="">
-                  <Image
-                    className="object-cover m-auto w-[348px]"
-                    src={jeans}
-                    alt="product image"
-                  />
-                </Link>
-                <div className="mt-4 px-3 pb-5">
-                  <Link href="">
-                    <h5 className="text-sm tracking-tight ">
-                      Adicolor Classics Joggers
-                    </h5>
-                  </Link>
-                  <div className="mt-2  flex items-center justify-between">
-                    <h5 className="text-sm tracking-tight text-gray-400">
-                      Dress
-                    </h5>
-                    <h5 className="text-sm tracking-tight ">$63.85</h5>
-                  </div>
-                </div>
-              </div>
-              <div className="relative flex flex-col overflow-hidden bg-white hover:shadow-md transition">
-                <Link className="relative flex overflow-hidden " href="">
-                  <Image
-                    className="object-cover  m-auto w-[348px]"
-                    src={bag}
-                    alt="product image"
-                  />
-                </Link>
-                <div className="mt-4 px-3 pb-5">
-                  <Link href="">
-                    <h5 className="text-sm tracking-tight ">
-                      Nike Sportswear Futura Luxe
-                    </h5>
-                  </Link>
-                  <div className="mt-2  flex items-center justify-between">
-                    <h5 className="text-sm tracking-tight text-gray-400">
-                      Bag
-                    </h5>
-                    <h5 className="text-sm tracking-tight ">$130.00</h5>
-                  </div>
-                </div>
-              </div>
-              <div className="relative flex flex-col overflow-hidden bg-white hover:shadow-md transition">
-                <Link className="relative flex overflow-hidden " href="">
-                  <Image
-                    className="object-cover  m-auto w-[348px]"
-                    src={scarf}
-                    alt="product image"
-                  />
-                </Link>
-                <div className="mt-4 px-3 pb-5">
-                  <Link href="">
-                    <h5 className="text-sm tracking-tight ">
-                      Geometric print Scarf
-                    </h5>
-                  </Link>
-                  <div className="mt-2  flex items-center justify-between">
-                    <h5 className="text-sm tracking-tight text-gray-400">
-                      Scarf
-                    </h5>
-                    <h5 className="text-sm tracking-tight ">$53.00</h5>
-                  </div>
-                </div>
-              </div>
-              <div className="relative flex flex-col overflow-hidden bg-white hover:shadow-md transition">
-                <Link className="relative flex overflow-hidden " href="">
-                  <Image
-                    className="object-cover  m-auto w-[348px]"
-                    src={hoodie}
-                    alt="product image"
-                  />
-                </Link>
-                <div className="mt-4 px-3 pb-5">
-                  <Link href="">
-                    <h5 className="text-sm tracking-tight ">
-                      Yellow Reserved Hoodie
-                    </h5>
-                  </Link>
-                  <div className="mt-2  flex items-center justify-between">
-                    <h5 className="text-sm tracking-tight text-gray-400">
-                      Dress
-                    </h5>
-                    <div className="flex items-center justify-between ">
-                      <h5 className="text-sm tracking-tight line-through ">
-                        $364.00
-                      </h5>
-                      <h5 className="text-sm tracking-tight  text-red-500 ml-5 ">
-                        $155.00
-                      </h5>
-                    </div>
-                  </div>
-                </div>
-              </div>
+                      {menuItems.displayTitle}
+                    </Link>
+                  </li>
+                );
+              })}
+            </ul>
+            <button className="bg-primary text-white py-2 px-4 rounded flex bg-gray-800">
+              <MdFilterAlt className="text-xl mr-1" />
+              Filter
+            </button>
+          </nav>
 
-              {/* <div className="cards flex"> */}
-              <div className="relative flex flex-col overflow-hidden bg-white hover:shadow-md transition">
-                <Link className="relative flex overflow-hidden " href="#">
-                  <Image
-                    className="object-cover  m-auto w-[348px]"
-                    src={greenshirt}
-                    alt="product image"
-                  />
-                </Link>
-                <div className="mt-4 px-3 pb-5">
-                  <Link href="#">
-                    <h5 className="text-sm tracking-tight ">
-                      Basic Dress Green
-                    </h5>
-                  </Link>
-                  <div className="mt-2  flex items-center justify-between">
-                    <h5 className="text-sm tracking-tight text-gray-400">
-                      Dress
-                    </h5>
-                    <h5 className="text-sm tracking-tight ">$236.00</h5>
-                  </div>
-                </div>
-              </div>
-              <div className="relative flex flex-col overflow-hidden bg-white hover:shadow-md transition">
-                <Link className="relative flex overflow-hidden " href="">
-                  <Image
-                    className="object-cover  m-auto w-[348px]"
-                    src={shoes}
-                    alt="product image"
-                  />
-                </Link>
-                <div className="mt-4 px-3 pb-5">
-                  <Link href="">
-                    <h5 className="text-sm tracking-tight ">
-                      Nike Air Zoom Pegasus
-                    </h5>
-                  </Link>
-                  <div className="mt-2  flex items-center justify-between">
-                    <h5 className="text-sm tracking-tight text-gray-400">
-                      Shoes
-                    </h5>
-                    <div className="flex items-center justify-between ">
-                      <h5 className="text-sm tracking-tight line-through ">
-                        $220.00
-                      </h5>
-                      <h5 className="text-sm tracking-tight  text-red-500 ml-5 ">
-                        $198.00
-                      </h5>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            {showAllProducts ? (
+              <AllProducts />
+            ) : (
+              data.catalogItems.edges.map((edge: { node: any }) => {
+                const { node } = edge;
+                const { product } = node;
+                return (
+                  <div
+                    key={product._id}
+                    className="product-card relative flex flex-col overflow-hidden bg-white hover:shadow-md transition"
+                  >
+                    <Link href="#">
+                      <Image
+                        className="object-cover sm:mx-auto"
+                        src={food}
+                        alt="product image"
+                      />
+                    </Link>
+                    <div className="mt-4 px-3 pb-5">
+                      <Link href="#">
+                        <h5 className="text-sm tracking-tight">
+                          {product.title}
+                        </h5>
+                      </Link>
+                      <div className="mt-2 flex justify-between">
+                        {product.pricing.map(
+                          (
+                            price: {
+                              displayPrice: any;
+                            },
+                            index: React.Key | null | undefined
+                          ) => (
+                            <h5
+                              key={index}
+                              className="text-sm ms-auto tracking-tight"
+                            >
+                              {price.displayPrice}
+                            </h5>
+                          )
+                        )}
+                      </div>
                     </div>
                   </div>
-                </div>
-              </div>
-              <div className="relative flex flex-col overflow-hidden bg-white hover:shadow-md transition">
-                <Link className="relative flex overflow-hidden " href="">
-                  <Image
-                    className="object-cover  m-auto w-[348px]"
-                    src={jacket}
-                    alt="product image"
-                  />
-                </Link>
-                <div className="mt-4 px-3 pb-5">
-                  <Link href="">
-                    <h5 className="text-sm tracking-tight ">
-                      Nike Repel Miler
-                    </h5>
-                  </Link>
-                  <div className="mt-2  flex items-center justify-between">
-                    <h5 className="text-sm tracking-tight text-gray-400">
-                      Dress
-                    </h5>
-                    <h5 className="text-sm tracking-tight ">$120.50</h5>
-                  </div>
-                </div>
-              </div>
-              <div className="relative flex flex-col overflow-hidden bg-white hover:shadow-md transition">
-                <Link className="relative flex overflow-hidden " href="">
-                  <Image
-                    className="object-cover  m-auto w-[348px]"
-                    src={glasses}
-                    alt="product image"
-                  />
-                </Link>
-                <div className="mt-4 px-3 pb-5">
-                  <Link href="">
-                    <h5 className="text-sm tracking-tight ">
-                      Nike Sportswear Futura Luxe
-                    </h5>
-                  </Link>
-                  <div className="mt-2  flex items-center justify-between">
-                    <h5 className="text-sm tracking-tight text-gray-400">
-                      Glasses
-                    </h5>
-                    <h5 className="text-sm tracking-tight ">$160.00</h5>
-                  </div>
-                </div>
-              </div>
-            </div>
-            {/* </div> */}
+                );
+              })
+            )}
           </div>
         </div>
       </div>
-    </>
+    </div>
   );
 };
 
