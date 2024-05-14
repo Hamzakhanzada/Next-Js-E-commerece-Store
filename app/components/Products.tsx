@@ -3,13 +3,9 @@ import React, { useState } from "react";
 import { useQuery, gql } from "@apollo/client";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-// import SkeletonLoader from "./SkeletonLoader";
 import Skeleton from 'react-loading-skeleton'
 import 'react-loading-skeleton/dist/skeleton.css'
-
-
 import AllProducts from "./Allproducts";
-
 import food from "../../public/images/fast-food.jpg";
 import Image from "next/image";
 
@@ -24,7 +20,7 @@ const GET_DATA = gql`
         displayTitle
         slug
       }
-    }
+    } 
     catalogItems(
       shopIds: ["cmVhY3Rpb24vc2hvcDpGN2ZrM3plR3o4anpXaWZzQQ=="]
       tagIds: $tagIds
