@@ -1,18 +1,13 @@
-"use client";
-import React, { useState } from "react";
-import { useQuery, gql } from "@apollo/client";
+import React from "react";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
-import Skeleton from 'react-loading-skeleton'
-import 'react-loading-skeleton/dist/skeleton.css'
-import AllProducts from "./Allproducts";
-import food from "../../public/images/fast-food.jpg";
+import { FaFilter } from "react-icons/fa6";
 import Image from "next/image";
+import { useQuery, gql } from "@apollo/client";
+import { useSearchParams } from "next/navigation";
+import bag from "../../public/images/bag.png"
 
-import { MdFilterAlt } from "react-icons/md";
-
-const GET_DATA = gql`
-  query ($tagIds: [ID!]) {
+const GET_PRODUCTS = gql`
+  query {
     tags(shopId: "cmVhY3Rpb24vc2hvcDpGN2ZrM3plR3o4anpXaWZzQQ==") {
       nodes {
         _id
@@ -20,20 +15,20 @@ const GET_DATA = gql`
         displayTitle
         slug
       }
-    } 
+    }
     catalogItems(
       shopIds: ["cmVhY3Rpb24vc2hvcDpGN2ZrM3plR3o4anpXaWZzQQ=="]
-      tagIds: $tagIds
+      tagIds: ["cmVhY3Rpb24vdGFnOlF2cmozWG95U3NvS1BkM3hL"]
     ) {
       edges {
         node {
           ... on CatalogItemProduct {
             product {
               title
-              description
-              pricing {
+              pricing{
                 displayPrice
               }
+              description
               _id
               variants {
                 _id
@@ -52,135 +47,78 @@ const GET_DATA = gql`
   }
 `;
 
-const Products = () => {
-  const [tagId, setTagId] = useState("");
-  const { loading, error, data } = useQuery(GET_DATA, {
-    variables: {
-      tagIds: tagId ? [tagId] : null,
-    },
-  });
-  const [showAllProducts, setShowAllProducts] = useState(false);
-  const queryParameters = useSearchParams();
-  const search = queryParameters.get("tag");
+const Product = () => {
+  const { loading, error, data } = useQuery(GET_PRODUCTS);
+  const searchParams = useSearchParams();
+  const search = searchParams.get("tag");
 
-  const handleAllProductsClick = () => {
-    setTagId("");
-    setShowAllProducts(false);
-  };
-
-  if (loading)
-    return (
-      <div>
-        <Skeleton className="h-[90px]" count={5} />
-
-      </div>
-    );
-  if (error)
-    return (
-      <p className="container mx-auto text-red-600">Error : {error.message}</p>
-    );
-
-  console.log("catalog items", data.catalogItems);
+  if (loading) return <p>Loading...</p>;
+  if (error) return <p>Error loading data...</p>;
 
   return (
-    <div className="container mx-auto font-open-sans">
-      <div className="product-section p-6">
-        <h2 className="text-center">Or subscribe to the newsletter</h2>
+    <section className="py-16">
+      <div className="container mx-auto">
         <div>
-          <nav className="flex items-center justify-between bg-white py-7">
-            <ul className="hidden lg:flex">
-              <li className="mr-5">
-                <Link
-                  href="/"
-                  className={`${
-                    !search ? " text-black font-extrabold " : ""
-                  } text-black hover:text-primary transition-colors duration-300 ease-in-out`}
-                  onClick={handleAllProductsClick}
-                  scroll={false}
-                >
+          <h1 className="text-[50px] text-center">Or subscribe to the newsletter</h1>
+        </div>
+        <div className="flex justify-between mt-10 flex-wrap">
+          <div>
+            <ul className="flex gap-5 flex-wrap justify-between lg:text-base open-sans">
+              <li className="transition-colors font-semibold duration-300 ease-in-out">
+                <Link scroll={false} href="/" className={`transition-colors duration-300 mr-4 ease-in-out ${!search ? "font-extrabold text-black" : ""} transition-colors duration-300 ease-in-out`}>
                   All Products
                 </Link>
               </li>
-              {data.tags.nodes.map((menuItems: any) => {
-                const isActive = search === menuItems.slug;
+              {data.tags.nodes.map((tag: any) => {
+                const isActive = search === tag.slug;
                 return (
-                  <li key={menuItems.id} className="mr-5">
-                    <Link
-                      href={{
-                        query: { tag: menuItems.slug },
-                      }}
-                      className={`${
-                        isActive ? " text-black font-extrabold" : ""
-                      } text-black  transition-colors duration-300 ease-in-out`}
-                      onClick={() => {
-                        setTagId(menuItems._id);
-                      }}
-                      scroll={false}
-                    >
-                      {menuItems.displayTitle}
+                  <li key={tag._id} className="mr-5">
+                    <Link scroll={false} href={{ query: { tag: tag.slug } }} className={`${isActive ? 'font-extrabold text-black' : ""} text-black transition-colors duration-300 ease-in-out`}>
+                      {tag.displayTitle}
                     </Link>
                   </li>
                 );
               })}
             </ul>
-            <button className="bg-primary text-white py-2 px-4 rounded flex bg-gray-800">
-              <MdFilterAlt className="text-xl mr-1" />
+          </div>
+          <div>
+            <button className="bg-black open-sans text-white flex py-[5px] px-[15px]">
+              <FaFilter className="mt-1 me-2" />
               Filter
             </button>
-          </nav>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {showAllProducts ? (
-              <AllProducts />
-            ) : (
-              data.catalogItems.edges.map((edge: { node: any }) => {
-                const { node } = edge;
-                const { product } = node;
-                return (
-                  <div
-                    key={product._id}
-                    className="product-card relative flex flex-col overflow-hidden bg-white hover:shadow-md transition"
-                  >
-                    <Link href="#">
-                      <Image
-                        className="object-cover sm:mx-auto"
-                        src={food}
-                        alt="product image"
-                      />
-                    </Link>
-                    <div className="mt-4 px-3 pb-5">
-                      <Link href="#">
-                        <h5 className="text-sm tracking-tight">
-                          {product.title}
-                        </h5>
-                      </Link>
-                      <div className="mt-2 flex justify-between">
-                        {product.pricing.map(
-                          (
-                            price: {
-                              displayPrice: any;
-                            },
-                            index: React.Key | null | undefined
-                          ) => (
-                            <h5
-                              key={index}
-                              className="text-sm ms-auto tracking-tight"
-                            >
-                              {price.displayPrice}
-                            </h5>
-                          )
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                );
-              })
-            )}
           </div>
+        </div>
+        <div className="grid grid-cols-1 mt-9 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          {data.catalogItems.edges.map((edge: any) => (
+            <ProductCard key={edge.node.product._id} product={edge.node.product} />
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+};
+
+const ProductCard = ({ product }: { product: any }) => {
+  return (
+    <div className="hover:shadow-xl">
+      <Image src={bag} alt={product.title} width={300} height={300} />
+      <div className="px-[10px] py-[18px] text-base roboto">
+        {product.title}
+        <div className="flex justify-between">
+          <span className="text-[#00000080]">{product.category}</span>
+          {/* Conditionally render the price */}
+          {product.pricing && (
+            <span>
+              {product.pricing.map((price: any) => (
+                <span key={price._id}>{price.displayPrice}</span>
+              ))}
+            </span>
+          )}
         </div>
       </div>
     </div>
   );
 };
 
-export default Products;
+
+export default Product;

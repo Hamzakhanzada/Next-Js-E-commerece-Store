@@ -14,6 +14,7 @@ export default function Home() {
   return (
   <ApolloProvider client={client}>
     <div className="bg-gray-100">
+      
     <Navbar/>
     <Hero/>
     </div>
