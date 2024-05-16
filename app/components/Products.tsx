@@ -1,13 +1,13 @@
-import React from "react";
+import React, { useState } from "react";
 import Link from "next/link";
 import { FaFilter } from "react-icons/fa6";
 import Image from "next/image";
 import { useQuery, gql } from "@apollo/client";
 import { useSearchParams } from "next/navigation";
-import bag from "../../public/images/bag.png"
+import bag from "../../public/images/fast-food.jpg";
 
 const GET_PRODUCTS = gql`
-  query {
+  query ($tagIds: [ID!]) {
     tags(shopId: "cmVhY3Rpb24vc2hvcDpGN2ZrM3plR3o4anpXaWZzQQ==") {
       nodes {
         _id
@@ -18,14 +18,14 @@ const GET_PRODUCTS = gql`
     }
     catalogItems(
       shopIds: ["cmVhY3Rpb24vc2hvcDpGN2ZrM3plR3o4anpXaWZzQQ=="]
-      tagIds: ["cmVhY3Rpb24vdGFnOlF2cmozWG95U3NvS1BkM3hL"]
+      tagIds: $tagIds
     ) {
       edges {
         node {
           ... on CatalogItemProduct {
             product {
               title
-              pricing{
+              pricing {
                 displayPrice
               }
               description
@@ -48,32 +48,59 @@ const GET_PRODUCTS = gql`
 `;
 
 const Product = () => {
-  const { loading, error, data } = useQuery(GET_PRODUCTS);
+  const [tagId, setTagId] = useState("");
+  const { loading, error, data } = useQuery(GET_PRODUCTS, {
+    variables: { tagIds: tagId ? [tagId] : null },
+  });
+
+  const handleAllProductsClick = () => {
+    setTagId("");
+  };
   const searchParams = useSearchParams();
   const search = searchParams.get("tag");
 
   if (loading) return <p>Loading...</p>;
   if (error) return <p>Error loading data...</p>;
 
+  console.log("clicked data is here", data.catalogItems);
+
   return (
     <section className="py-16">
       <div className="container mx-auto">
         <div>
-          <h1 className="text-[50px] text-center">Or subscribe to the newsletter</h1>
+          <h1 className="text-[50px] text-center">
+            Or subscribe to the newsletter
+          </h1>
         </div>
         <div className="flex justify-between mt-10 flex-wrap">
           <div>
             <ul className="flex gap-5 flex-wrap justify-between lg:text-base open-sans">
               <li className="transition-colors font-semibold duration-300 ease-in-out">
-                <Link scroll={false} href="/" className={`transition-colors duration-300 mr-4 ease-in-out ${!search ? "font-extrabold text-black" : ""} transition-colors duration-300 ease-in-out`}>
+                <Link
+                  onClick={handleAllProductsClick}
+                  scroll={false}
+                  href="/"
+                  className={`transition-colors duration-300 mr-4 ease-in-out ${
+                    !search ? "font-extrabold text-black" : ""
+                  } transition-colors duration-300 ease-in-out`}
+                >
                   All Products
                 </Link>
               </li>
               {data.tags.nodes.map((tag: any) => {
                 const isActive = search === tag.slug;
                 return (
-                  <li key={tag._id} className="mr-5">
-                    <Link scroll={false} href={{ query: { tag: tag.slug } }} className={`${isActive ? 'font-extrabold text-black' : ""} text-black transition-colors duration-300 ease-in-out`}>
+                  <li key={tag.id} className="mr-5">
+                    <Link
+                      scroll={false}
+                      href={{ query: { tag: tag.slug } }}
+                      className={`${
+                        isActive ? "font-extrabold text-black" : ""
+                      } text-black transition-colors duration-300 ease-in-out`}
+                      onClick={()=>{
+                        setTagId(tag._id)
+                      }}
+                    >
                       {tag.displayTitle}
                     </Link>
                   </li>
@@ -89,9 +116,13 @@ const Product = () => {
           </div>
         </div>
         <div className="grid grid-cols-1 mt-9 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-          {data.catalogItems.edges.map((edge: any) => (
-            <ProductCard key={edge.node.product._id} product={edge.node.product} />
-          ))}
+          {data.catalogItems.edges.map((edge: { node: any }) => {
+            const { node } = edge;
+            const { product } = node;
+            return (
+              <ProductCard key={product._id} product={edge.node.product} />
+            );
+          })}
         </div>
       </div>
     </section>
@@ -119,6 +150,5 @@ const ProductCard = ({ product }: { product: any }) => {
     </div>
   );
 };
-
 
 export default Product;
