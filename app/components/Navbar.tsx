@@ -9,7 +9,7 @@ import { useState } from "react";
 import { HiBars3 } from "react-icons/hi2";
 import Link from "next/link";
 import food from "../../public/images/glasses.png";
-import AllProducts from "./Allproducts";
+// import AllProducts from "./Allproducts";
 
 
 

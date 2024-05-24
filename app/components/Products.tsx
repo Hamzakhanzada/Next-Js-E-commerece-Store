@@ -2,12 +2,15 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { FaFilter } from "react-icons/fa6";
 import Image from "next/image";
-import { useQuery, gql } from "@apollo/client";
+import { useQuery } from "@apollo/client";
 import { useSearchParams } from "next/navigation";
+import Skeleton from "react-loading-skeleton";
+import 'react-loading-skeleton/dist/skeleton.css'; // Import CSS for skeleton
 import bag from "../../public/images/fast-food.jpg";
+import { gql } from "@/__generated__";
 
-const GET_PRODUCTS = gql`
-  query ($tagIds: [ID!]) {
+const GET_PRODUCTS = gql(`
+  query GetProducts ($tagIds: [ID!]) {
     tags(shopId: "cmVhY3Rpb24vc2hvcDpGN2ZrM3plR3o4anpXaWZzQQ==") {
       nodes {
         _id
@@ -41,11 +44,11 @@ const GET_PRODUCTS = gql`
               }
             }
           }
-        }
+        } 
       }
     }
   }
-`;
+`);
 
 const Product = () => {
   const [tagId, setTagId] = useState("");
@@ -59,10 +62,7 @@ const Product = () => {
   const searchParams = useSearchParams();
   const search = searchParams.get("tag");
 
-  if (loading) return <p>Loading...</p>;
   if (error) return <p>Error loading data...</p>;
-
-  console.log("clicked data is here", data.catalogItems);
 
   return (
     <section className="py-16">
@@ -82,23 +82,23 @@ const Product = () => {
                   href="/"
                   className={`transition-colors duration-300 mr-4 ease-in-out ${
                     !search ? "font-extrabold text-black" : ""
-                  } transition-colors duration-300 ease-in-out`}
+                  }`}
                 >
                   All Products
                 </Link>
               </li>
-              {data.tags.nodes.map((tag: any) => {
+              {data?.tags?.nodes?.map((tag: any) => {
                 const isActive = search === tag.slug;
                 return (
-                  <li key={tag.id} className="mr-5">
+                  <li key={tag._id} className="mr-5">
                     <Link
                       scroll={false}
                       href={{ query: { tag: tag.slug } }}
                       className={`${
                         isActive ? "font-extrabold text-black" : ""
                       } text-black transition-colors duration-300 ease-in-out`}
-                      onClick={()=>{
-                        setTagId(tag._id)
+                      onClick={() => {
+                        setTagId(tag._id);
                       }}
                     >
                       {tag.displayTitle}
@@ -116,18 +116,33 @@ const Product = () => {
           </div>
         </div>
         <div className="grid grid-cols-1 mt-9 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-          {data.catalogItems.edges.map((edge: { node: any }) => {
-            const { node } = edge;
-            const { product } = node;
-            return (
-              <ProductCard key={product._id} product={edge.node.product} />
-            );
-          })}
+          {loading
+            ? Array.from({ length: 8 }).map((_, index) => (
+                <SkeletonCard key={index} />
+              ))
+            : data?.catalogItems?.edges?.map((edge: any) => {
+                const { node } = edge;
+                const { product } = node;
+                return <ProductCard key={product._id} product={product} />;
+              })}
         </div>
       </div>
     </section>
   );
 };
+
+const SkeletonCard = () => (
+  <div className="hover:shadow-xl p-2">
+    <Skeleton height={300} />
+    <div className="px-[10px] py-[18px] text-base roboto">
+      <Skeleton width="60%" />
+      <div className="flex justify-between mt-2">
+        <Skeleton width="40%" />
+        <Skeleton width="20%" />
+      </div>
+    </div>
+  </div>
+);
 
 const ProductCard = ({ product }: { product: any }) => {
   return (
@@ -137,7 +152,6 @@ const ProductCard = ({ product }: { product: any }) => {
         {product.title}
         <div className="flex justify-between">
           <span className="text-[#00000080]">{product.category}</span>
-          {/* Conditionally render the price */}
           {product.pricing && (
             <span>
               {product.pricing.map((price: any) => (

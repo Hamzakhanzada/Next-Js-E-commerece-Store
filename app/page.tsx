@@ -10,6 +10,7 @@ import Products from "./components/Products";
 import { client } from "@/lib/client";
 import Hero from "./components/Hero";
 
+
 export default function Home() {
   return (
   <ApolloProvider client={client}>
@@ -23,4 +24,5 @@ export default function Home() {
     <Footer/>
   </ApolloProvider>
   );
+  
 }
