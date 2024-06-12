@@ -1,8 +1,10 @@
-"use client";
-import { ApolloClient, InMemoryCache } from "@apollo/client";
+import { ApolloClient, HttpLink, InMemoryCache } from "@apollo/client";
 
-export const client = new ApolloClient({
-  uri: "https://explore-btk-opencommerce-apis.ceultnteo3kpk.ap-southeast-1.cs.amazonlightsail.com/graphql",
+const client = new ApolloClient({
+  link: new HttpLink({
+    uri: "https://explore-btk-opencommerce-apis.ceultnteo3kpk.ap-southeast-1.cs.amazonlightsail.com/graphql",
+  }),
   cache: new InMemoryCache(),
 });
 
+export default client;

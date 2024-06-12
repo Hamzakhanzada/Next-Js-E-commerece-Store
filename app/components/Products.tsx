@@ -12,13 +12,14 @@ import { gql } from "@/__generated__";
 const GET_PRODUCTS = gql(`
   query GetProducts ($tagIds: [ID!]) {
     tags(shopId: "cmVhY3Rpb24vc2hvcDpGN2ZrM3plR3o4anpXaWZzQQ==") {
-      nodes {
+      nodes { 
         _id
         name
         displayTitle
         slug
       }
     }
+  
     catalogItems(
       shopIds: ["cmVhY3Rpb24vc2hvcDpGN2ZrM3plR3o4anpXaWZzQQ=="]
       tagIds: $tagIds
@@ -28,6 +29,7 @@ const GET_PRODUCTS = gql(`
           ... on CatalogItemProduct {
             product {
               title
+              slug
               pricing {
                 displayPrice
               }
@@ -133,7 +135,7 @@ const Product = () => {
 
 const SkeletonCard = () => (
   <div className="hover:shadow-xl p-2">
-    <Skeleton height={300} />
+    <Skeleton height={300}/>
     <div className="px-[10px] py-[18px] text-base roboto">
       <Skeleton width="60%" />
       <div className="flex justify-between mt-2">
@@ -147,7 +149,9 @@ const SkeletonCard = () => (
 const ProductCard = ({ product }: { product: any }) => {
   return (
     <div className="hover:shadow-xl">
-      <Image src={bag} alt={product.title} width={300} height={300} />
+      <Link href={`/products/${product.slug}`} passHref>
+        <Image src={bag} alt={product.title} width={300} height={300} />
+      </Link>
       <div className="px-[10px] py-[18px] text-base roboto">
         {product.title}
         <div className="flex justify-between">
@@ -164,5 +168,6 @@ const ProductCard = ({ product }: { product: any }) => {
     </div>
   );
 };
+
 
 export default Product;
